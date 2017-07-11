@@ -66,3 +66,9 @@ Erroneous words or lines will be highlighted in the source files.
 ## Credits
 
 * [Icons from famfamfam.com](http://www.famfamfam.com/lab/icons/silk/)
+
+
+## License
+
+See the `LICENSE` file under this repository.
+
