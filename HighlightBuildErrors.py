@@ -29,14 +29,16 @@ g_show_errors = True
 g_color_configs = []
 
 def plugin_loaded():
-    settings = sublime.load_settings(SETTINGS_FILE)
-    settings.add_on_change("colors", load_config)
+    global g_settings
+    g_settings = sublime.load_settings(SETTINGS_FILE)
+    g_settings.add_on_change("colors", load_config)
     load_config()
 
 def load_config():
+    global g_settings
     global g_color_configs, g_default_color
-    settings = sublime.load_settings(SETTINGS_FILE)
-    g_color_configs = settings.get("colors", [{"color": "sublimelinter.mark.error"}])
+    g_settings = sublime.load_settings(SETTINGS_FILE)
+    g_color_configs = g_settings.get("colors", [{"color": "sublimelinter.mark.error"}])
     for config in g_color_configs:
         if "regex" in config:
             config["compiled_regex"] = re.compile(config["regex"])
@@ -169,11 +171,28 @@ def doHighlighting(self):
     g_errors = error_parser.parse(output)
     update_all_views(self.window)
 
+
 class ExecCommand(defaultExec.ExecCommand):
 
-    def finish(self, proc):
-        super(ExecCommand, self).finish(proc)
+    def on_finished(self, proc):
+        """It is the entry point after the process is finished."""
+        super(ExecCommand, self).on_finished(proc)
         doHighlighting(self)
+
+        if g_settings.get("force_show_build_panel", False):
+            exit_code = proc.exit_code()
+            output_view = self.output_view
+            errors_len = len(output_view.find_all_results())
+
+            # How to track if an output panel is closed/hidden?
+            # https://forum.sublimetext.com/t/how-to-track-if-an-output-panel-is-closed-hidden/8453
+            if ( exit_code \
+                    or errors_len ) \
+                    and not output_view.window():
+
+                output_view.show(0)
+                self.window.run_command("show_panel", {"panel": "output.exec"})
+
 
 try:
     class AnsiColorBuildCommand(ansiEscape.AnsiColorBuildCommand):
