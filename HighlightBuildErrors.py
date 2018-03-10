@@ -81,11 +81,6 @@ class ViewEventListener(sublime_plugin.EventListener):
     def on_activated_async(self, view):
         update_errors_in_view(view)
 
-    def on_modified_async(self, view):
-        if not view.is_dirty():
-            # Then most likely just reloaded or saved!
-            update_errors_in_view(view)
-
     def on_window_command(self, window, command, args):
         if command == "build":
             for view in window.views():
