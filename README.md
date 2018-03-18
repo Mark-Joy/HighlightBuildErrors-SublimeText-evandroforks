@@ -49,6 +49,36 @@ Here is the content of the default settings file:
 
 ```
 
+
+You can specify a regex on your project settings like this
+```js
+{
+  "build_systems":
+  [
+    {
+      // ...
+    }
+  ],
+  "folders":
+  [
+    {
+      "path": "."
+    },
+  ],
+  "settings":
+  {
+    "tab_size": 2,
+    "result_file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+  }
+}
+```
+
+The `result_file_regex` will be used for your project, instead of the standard `file_regex`.
+
+The `result_file_regex` an alternate error file regex for you build system,
+other than the standard `file_regex` as when it is capturing more things which are not errors.
+
+
 ## Usage
 
 Build as usual (<kbd>Ctrl</kbd>+<kbd>B</kbd> or <kbd>Cmd</kbd>+<kbd>B</kbd>).

@@ -159,7 +159,13 @@ class ErrorParser:
 
 def doHighlighting(self):
     output = self.output_view.substr(sublime.Region(0, self.output_view.size()))
-    error_pattern = self.output_view.settings().get("result_file_regex")
+
+    # First try to get the setting `result_file_regex` on the current window project settings
+    error_pattern = self.window.project_data().get("settings", {}).get("result_file_regex", None)
+
+    if not error_pattern:
+        error_pattern = self.output_view.settings().get("result_file_regex")
+
     error_parser = ErrorParser(error_pattern)
 
     global g_errors
