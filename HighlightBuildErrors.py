@@ -157,14 +157,45 @@ class ErrorParser:
         else:
             return [ErrorLine(m) for m in self.regex.finditer(text)]
 
+
+def forceShowBuildPanel(self, proc):
+
+    if g_settings.get("force_show_build_panel", False):
+        exit_code = proc.exit_code()
+        output_view = self.output_view
+        errors_len = len(output_view.find_all_results())
+
+        # How to track if an output panel is closed/hidden?
+        # https://forum.sublimetext.com/t/how-to-track-if-an-output-panel-is-closed-hidden/8453
+        if ( exit_code \
+                or errors_len ) \
+                and not output_view.window():
+
+            output_view.show(0)
+            self.window.run_command("show_panel", {"panel": "output.exec"})
+
+
+def setWordWrapSetting(self):
+    output = self.output_view.substr(sublime.Region(0, self.output_view.size()))
+
+    project_settings = self.window.project_data().get("settings", {})
+    is_word_wrap_enabled = project_settings.get("is_output_build_word_wrap_enabled", True)
+
+    if not is_word_wrap_enabled:
+        output_view_settings = self.output_view.settings()
+        output_view_settings.set("word_wrap", False)
+
+
 def doHighlighting(self):
     output = self.output_view.substr(sublime.Region(0, self.output_view.size()))
 
     # First try to get the setting `result_file_regex` on the current window project settings
-    error_pattern = self.window.project_data().get("settings", {}).get("result_file_regex", None)
+    project_settings = self.window.project_data().get("settings", {})
+    error_pattern = project_settings.get("result_file_regex", None)
 
     if not error_pattern:
-        error_pattern = self.output_view.settings().get("result_file_regex")
+        output_view_settings = self.output_view.settings()
+        error_pattern = output_view_settings.get("result_file_regex")
 
     error_parser = ErrorParser(error_pattern)
 
@@ -175,34 +206,32 @@ def doHighlighting(self):
 
 class ExecCommand(defaultExec.ExecCommand):
 
+    def run(self, *args, **kwargs):
+        super(ExecCommand, self).run(*args, **kwargs)
+        setWordWrapSetting(self)
+
     def on_finished(self, proc):
         """It is the entry point after the process is finished."""
         super(ExecCommand, self).on_finished(proc)
         doHighlighting(self)
-
-        if g_settings.get("force_show_build_panel", False):
-            exit_code = proc.exit_code()
-            output_view = self.output_view
-            errors_len = len(output_view.find_all_results())
-
-            # How to track if an output panel is closed/hidden?
-            # https://forum.sublimetext.com/t/how-to-track-if-an-output-panel-is-closed-hidden/8453
-            if ( exit_code \
-                    or errors_len ) \
-                    and not output_view.window():
-
-                output_view.show(0)
-                self.window.run_command("show_panel", {"panel": "output.exec"})
+        forceShowBuildPanel(self, proc)
 
 
 try:
     class AnsiColorBuildCommand(ansiEscape.AnsiColorBuildCommand):
 
+        def run(self, *args, **kwargs):
+            super(AnsiColorBuildCommand, self).run(*args, **kwargs)
+            setWordWrapSetting(self)
+
         def finish(self, proc):
             super(AnsiColorBuildCommand, self).finish(proc)
             doHighlighting(self)
+            forceShowBuildPanel(self, proc)
+
 except:
     pass
+
 
 class HideBuildErrorsCommand(sublime_plugin.WindowCommand):
 
