@@ -158,9 +158,29 @@ class ErrorParser:
             return [ErrorLine(m) for m in self.regex.finditer(text)]
 
 
+def fixHorizontalScrollGlitch(self):
+    """
+        The output build panel is completely scrolled horizontally to the right when there are build errors
+        https://github.com/SublimeTextIssues/Core/issues/2239
+    """
+    view = self.output_view
+    new_x = 0
+
+    viewport_height = view.viewport_extent()[1]
+    current_y_position = view.viewport_position()[1]
+
+    # print("viewport_height: %s, current_y_position: %s" % (viewport_height, current_y_position))
+    if current_y_position > viewport_height:
+        view.set_viewport_position((new_x, current_y_position), False)
+
+
 def forceShowBuildPanel(self, proc):
 
+    if not self.is_word_wrap_enabled:
+        fixHorizontalScrollGlitch(self)
+
     if g_settings.get("force_show_build_panel", False):
+
         exit_code = proc.exit_code()
         output_view = self.output_view
         errors_len = len(output_view.find_all_results())
@@ -180,6 +200,7 @@ def setWordWrapSetting(self):
 
     project_settings = self.window.project_data().get("settings", {})
     is_word_wrap_enabled = project_settings.get("is_output_build_word_wrap_enabled", True)
+    self.is_word_wrap_enabled = is_word_wrap_enabled
 
     if not is_word_wrap_enabled:
         output_view_settings = self.output_view.settings()
