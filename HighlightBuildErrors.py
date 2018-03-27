@@ -180,7 +180,6 @@ def forceShowBuildPanel(self, proc):
         fixHorizontalScrollGlitch(self)
 
     if g_settings.get("force_show_build_panel", False):
-
         exit_code = proc.exit_code()
         output_view = self.output_view
         errors_len = len(output_view.find_all_results())
