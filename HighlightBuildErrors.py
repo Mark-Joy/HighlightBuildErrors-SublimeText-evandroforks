@@ -170,8 +170,8 @@ def fixHorizontalScrollGlitch(self):
     current_y_position = view.viewport_position()[1]
 
     # print("viewport_height: %s, current_y_position: %s" % (viewport_height, current_y_position))
-    if current_y_position > viewport_height:
-        view.set_viewport_position((new_x, current_y_position), False)
+    # if current_y_position > viewport_height:
+    view.set_viewport_position((new_x, current_y_position), False)
 
 
 def forceShowBuildPanel(self, proc):
@@ -204,6 +204,9 @@ def setWordWrapSetting(self):
     if not is_word_wrap_enabled:
         output_view_settings = self.output_view.settings()
         output_view_settings.set("word_wrap", False)
+        # highlight_line doesn't work unless gutter is true
+        # https://github.com/SublimeTextIssues/Core/issues/586
+        # output_view_settings.set("highlight_line", True)
 
 
 def doHighlighting(self):
