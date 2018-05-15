@@ -195,6 +195,10 @@ def forceShowBuildPanel(self, proc):
 
 
 def setWordWrapSetting(self):
+
+    if not hasattr(self, "output_view"):
+        return
+
     output = self.output_view.substr(sublime.Region(0, self.output_view.size()))
 
     project_settings = self.window.project_data().get("settings", {})
