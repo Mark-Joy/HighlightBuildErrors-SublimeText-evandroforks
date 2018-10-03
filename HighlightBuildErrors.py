@@ -194,7 +194,8 @@ def forceShowBuildPanel(self, proc):
             self.window.run_command("show_panel", {"panel": "output.exec"})
 
 
-def get_project_settings():
+def get_project_settings(self):
+    project_data = self.window.project_data()
 
     if project_data:
         project_settings = project_data.get("settings", {})
@@ -211,7 +212,7 @@ def setWordWrapSetting(self):
         return
 
     output = self.output_view.substr(sublime.Region(0, self.output_view.size()))
-    project_settings = get_project_settings()
+    project_settings = get_project_settings(self)
 
     is_word_wrap_enabled = project_settings.get("is_output_build_word_wrap_enabled", True)
     self.is_word_wrap_enabled = is_word_wrap_enabled
@@ -228,7 +229,7 @@ def doHighlighting(self):
     output = self.output_view.substr(sublime.Region(0, self.output_view.size()))
 
     # First try to get the setting `result_file_regex` on the current window project settings
-    project_settings = get_project_settings()
+    project_settings = get_project_settings(self)
     error_pattern = project_settings.get("result_file_regex", None)
 
     if not error_pattern:
