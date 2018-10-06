@@ -231,10 +231,13 @@ def doHighlighting(self):
     # First try to get the setting `result_file_regex` on the current window project settings
     project_settings = get_project_settings(self)
     error_pattern = project_settings.get("result_file_regex", None)
+    output_view_settings = self.output_view.settings()
 
     if not error_pattern:
-        output_view_settings = self.output_view.settings()
         error_pattern = output_view_settings.get("result_file_regex")
+
+    if g_settings.get("disable_spell_checking", False):
+        output_view_settings.set('spell_check', False)
 
     error_parser = ErrorParser(error_pattern)
 
