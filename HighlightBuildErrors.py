@@ -149,7 +149,7 @@ class ErrorParser:
         self.regex = re.compile(pattern, re.MULTILINE)
         self.bad_regex = self.regex.groups < 3 or self.regex.groups > 4
         if self.bad_regex:
-            print("Highlight Build Errors plugin warning: invalid configuration\nThe regular expression must capture filename,line,[column,]message\nPlease fix the 'file_regex' in build system configuration.")
+            print("Highlight Build Errors plugin warning: invalid configuration. The regular expression must capture filename,line,[column,]message. Please fix the 'file_regex' in build system configuration.")
 
     def parse(self, text):
         if self.bad_regex:
