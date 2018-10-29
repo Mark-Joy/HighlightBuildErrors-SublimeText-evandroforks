@@ -174,12 +174,12 @@ def fixHorizontalScrollGlitch(self):
     view.set_viewport_position((new_x, current_y_position), False)
 
 
-def forceShowBuildPanel(self, proc):
+def showBuildPanelOneErrorOnly(self, proc):
 
     if not self.is_word_wrap_enabled:
         fixHorizontalScrollGlitch(self)
 
-    if g_settings.get("force_show_build_panel", False):
+    if g_settings.get("show_build_panel_on_error_only", False):
         exit_code = proc.exit_code()
         output_view = self.output_view
         errors_len = len(output_view.find_all_results())
@@ -206,38 +206,16 @@ def get_project_settings(self):
     return project_settings
 
 
-def setWordWrapSetting(self):
-
-    if not hasattr(self, "output_view"):
-        return
-
-    output = self.output_view.substr(sublime.Region(0, self.output_view.size()))
-    project_settings = get_project_settings(self)
-
-    is_word_wrap_enabled = project_settings.get("is_output_build_word_wrap_enabled", True)
-    self.is_word_wrap_enabled = is_word_wrap_enabled
-
-    if not is_word_wrap_enabled:
-        output_view_settings = self.output_view.settings()
-        output_view_settings.set("word_wrap", False)
-        # highlight_line doesn't work unless gutter is true
-        # https://github.com/SublimeTextIssues/Core/issues/586
-        # output_view_settings.set("highlight_line", True)
-
-
 def doHighlighting(self):
     output = self.output_view.substr(sublime.Region(0, self.output_view.size()))
 
     # First try to get the setting `result_file_regex` on the current window project settings
     project_settings = get_project_settings(self)
-    error_pattern = project_settings.get("result_file_regex", None)
-    output_view_settings = self.output_view.settings()
+    error_pattern = project_settings.get("highlight_build_errors_result_file_regex", None)
 
     if not error_pattern:
+        output_view_settings = self.output_view.settings()
         error_pattern = output_view_settings.get("result_file_regex")
-
-    if g_settings.get("disable_spell_checking", False):
-        output_view_settings.set('spell_check', False)
 
     error_parser = ErrorParser(error_pattern)
 
@@ -250,13 +228,12 @@ class ExecCommand(defaultExec.ExecCommand):
 
     def run(self, *args, **kwargs):
         super(ExecCommand, self).run(*args, **kwargs)
-        setWordWrapSetting(self)
 
     def on_finished(self, proc):
         """It is the entry point after the process is finished."""
         super(ExecCommand, self).on_finished(proc)
         doHighlighting(self)
-        forceShowBuildPanel(self, proc)
+        showBuildPanelOneErrorOnly(self, proc)
 
 
 try:
@@ -264,12 +241,11 @@ try:
 
         def run(self, *args, **kwargs):
             super(AnsiColorBuildCommand, self).run(*args, **kwargs)
-            setWordWrapSetting(self)
 
         def finish(self, proc):
             super(AnsiColorBuildCommand, self).finish(proc)
             doHighlighting(self)
-            forceShowBuildPanel(self, proc)
+            showBuildPanelOneErrorOnly(self, proc)
 
 except:
     pass

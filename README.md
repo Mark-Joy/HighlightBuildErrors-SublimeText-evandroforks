@@ -68,14 +68,14 @@ You can specify a regex on your project settings like this
   "settings":
   {
     "tab_size": 2,
-    "result_file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+    "highlight_build_errors_result_file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
   }
 }
 ```
 
-The `result_file_regex` will be used for your project, instead of the standard `file_regex`.
+The `highlight_build_errors_result_file_regex` will be used for your project, instead of the standard `file_regex`.
 
-The `result_file_regex` an alternate error file regex for you build system,
+The `highlight_build_errors_result_file_regex` an alternate error file regex for you build system,
 other than the standard `file_regex` as when it is capturing more things which are not errors.
 
 

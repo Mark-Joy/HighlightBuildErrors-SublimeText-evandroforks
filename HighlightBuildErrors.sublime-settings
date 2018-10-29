@@ -1,6 +1,6 @@
 {
   // Show build panel when there are build errors
-  "force_show_build_panel": true,
+  "show_build_panel_on_error_only": true,
 
   // Disables the spell checking setting `spell_check` on the build panel
   "disable_spell_checking": true,
