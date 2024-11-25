@@ -176,7 +176,7 @@ def fixHorizontalScrollGlitch(self):
 
 def showBuildPanelOneErrorOnly(self, proc):
 
-    if not self.is_word_wrap_enabled:
+    if not getattr(self, 'is_word_wrap_enabled', False):
         fixHorizontalScrollGlitch(self)
 
     if g_settings.get("show_build_panel_on_error_only", False):
